@@ -1,0 +1,509 @@
+<div class="page-layout">
+    <app-sidebar [activeMenu]="'consultas'"></app-sidebar>
+
+    <main class="main-content">
+        <!-- Progress Steps -->
+        <div class="wizard-progress">
+            <div class="progress-step" [class.active]="currentStep() === 'paciente'"
+                [class.completed]="['vitales','clinica','cuestionarios','procesando','resultados'].includes(currentStep())">
+                <div class="step-number">1</div>
+                <span>Paciente</span>
+            </div>
+            <div class="progress-line"
+                [class.completed]="['vitales','clinica','cuestionarios','procesando','resultados'].includes(currentStep())">
+            </div>
+            <div class="progress-step" [class.active]="currentStep() === 'vitales'"
+                [class.completed]="['clinica','cuestionarios','procesando','resultados'].includes(currentStep())">
+                <div class="step-number">2</div>
+                <span>Signos Vitales</span>
+            </div>
+            <div class="progress-line"
+                [class.completed]="['clinica','cuestionarios','procesando','resultados'].includes(currentStep())"></div>
+            <div class="progress-step" [class.active]="currentStep() === 'clinica'"
+                [class.completed]="['cuestionarios','procesando','resultados'].includes(currentStep())">
+                <div class="step-number">3</div>
+                <span>Evolución</span>
+            </div>
+            <div class="progress-line"
+                [class.completed]="['cuestionarios','procesando','resultados'].includes(currentStep())"></div>
+            <div class="progress-step" [class.active]="currentStep() === 'cuestionarios'"
+                [class.completed]="['procesando','resultados'].includes(currentStep())">
+                <div class="step-number">4</div>
+                <span>Evaluación</span>
+            </div>
+            <div class="progress-line" [class.completed]="['resultados'].includes(currentStep())"></div>
+            <div class="progress-step" [class.active]="currentStep() === 'resultados'" [class.completed]="false">
+                <div class="step-number">5</div>
+                <span>Resultados</span>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" *ngIf="error()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            {{ error() }}
+        </div>
+
+        <!-- Step 1: Paciente -->
+        <section class="wizard-step animate-fadeIn" *ngIf="currentStep() === 'paciente'">
+            <h2>Seleccionar o Registrar Paciente</h2>
+
+            <div class="search-section">
+                <div class="search-input-group">
+                    <input type="text" placeholder="Buscar por cédula..." [(ngModel)]="searchCedula"
+                        (keyup.enter)="buscarPaciente()" />
+                    <button class="btn-search" (click)="buscarPaciente()" [disabled]="loading()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Paciente Found -->
+            <div class="patient-found" *ngIf="pacienteEncontrado && !isNewPaciente">
+                <div class="patient-card-selected">
+                    <div class="patient-avatar-lg">{{ pacienteEncontrado.nombreEncriptado?.charAt(0)?.toUpperCase() ||
+                        'P' }}</div>
+                    <div class="patient-details">
+                        <h3>{{ pacienteEncontrado.nombreEncriptado }}</h3>
+                        <p>CI: {{ pacienteEncontrado.cedula }}</p>
+                        <p *ngIf="pacienteEncontrado.edad">{{ pacienteEncontrado.edad }} años - {{
+                            pacienteEncontrado.genero }}</p>
+                    </div>
+                </div>
+                <button class="btn-primary" (click)="selectPaciente()">
+                    Continuar con este paciente
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- New Paciente Form -->
+            <div class="new-patient-form" *ngIf="isNewPaciente">
+                <h3>Paciente no encontrado. Registrar nuevo:</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Cédula *</label>
+                        <input type="text" [(ngModel)]="pacienteForm.cedula" />
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Completo *</label>
+                        <input type="text" [(ngModel)]="pacienteForm.nombreEncriptado" />
+                    </div>
+                    <div class="form-group">
+                        <label>Edad</label>
+                        <input type="number" [(ngModel)]="pacienteForm.edad" />
+                    </div>
+                    <div class="form-group">
+                        <label>Género</label>
+                        <select [(ngModel)]="pacienteForm.genero">
+                            <option value="">Seleccionar</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Sangre</label>
+                        <select [(ngModel)]="pacienteForm.tipoSangre">
+                            <option value="">Seleccionar</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ocupación</label>
+                        <input type="text" [(ngModel)]="pacienteForm.ocupacion" />
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Enfermedad Crónica</label>
+                        <input type="text" [(ngModel)]="pacienteForm.enfermedadCronica"
+                            placeholder="Ej: Diabetes, Hipertensión..." />
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Alergias</label>
+                        <textarea [(ngModel)]="pacienteForm.alergias" rows="2"
+                            placeholder="Alergias conocidas..."></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Antecedentes Familiares</label>
+                        <textarea [(ngModel)]="pacienteForm.antecedentesFamiliares" rows="2"
+                            placeholder="Historial médico familiar..."></textarea>
+                    </div>
+                </div>
+                <button class="btn-primary" (click)="createPaciente()" [disabled]="loading()">
+                    {{ loading() ? 'Registrando...' : 'Registrar y Continuar' }}
+                </button>
+            </div>
+        </section>
+
+        <!-- Step 2: Signos Vitales -->
+        <section class="wizard-step animate-fadeIn" *ngIf="currentStep() === 'vitales'">
+            <h2>Signos Vitales (Triaje)</h2>
+            <p class="step-description">Registre los signos vitales del paciente</p>
+
+            <div class="form-grid vitals-grid">
+                <div class="form-group vital-input">
+                    <label>Presión Arterial</label>
+                    <input type="text" [(ngModel)]="consultaForm.presionArterial" placeholder="120/80" />
+                    <span class="unit">mmHg</span>
+                </div>
+                <div class="form-group vital-input">
+                    <label>Frecuencia Cardíaca</label>
+                    <input type="number" [(ngModel)]="consultaForm.frecuenciaCardiaca" placeholder="72" />
+                    <span class="unit">bpm</span>
+                </div>
+                <div class="form-group vital-input">
+                    <label>Temperatura</label>
+                    <input type="number" step="0.1" [(ngModel)]="consultaForm.temperatura" placeholder="36.5" />
+                    <span class="unit">°C</span>
+                </div>
+                <div class="form-group vital-input">
+                    <label>Saturación O₂</label>
+                    <input type="number" [(ngModel)]="consultaForm.saturacionOxigeno" placeholder="98" />
+                    <span class="unit">%</span>
+                </div>
+                <div class="form-group vital-input">
+                    <label>Peso</label>
+                    <input type="number" step="0.1" [(ngModel)]="consultaForm.pesoKg" placeholder="70.0" />
+                    <span class="unit">kg</span>
+                </div>
+                <div class="form-group vital-input">
+                    <label>Talla</label>
+                    <input type="number" [(ngModel)]="consultaForm.tallaCm" placeholder="170" />
+                    <span class="unit">cm</span>
+                </div>
+            </div>
+
+            <div class="imc-display" *ngIf="imc()">
+                <span class="imc-label">IMC Calculado:</span>
+                <span class="imc-value">{{ imc() }}</span>
+            </div>
+
+            <div class="wizard-actions">
+                <button class="btn-secondary" (click)="goBack()">Atrás</button>
+                <button class="btn-primary" (click)="goToClinica()">Continuar</button>
+            </div>
+        </section>
+
+        <!-- Step 3: Evolución Clínica -->
+        <section class="wizard-step animate-fadeIn" *ngIf="currentStep() === 'clinica'">
+            <h2>Evolución Clínica</h2>
+            <p class="step-description">Complete la información de la consulta médica</p>
+
+            <div class="form-stack">
+                <div class="form-group">
+                    <label>Motivo de Consulta *</label>
+                    <textarea [(ngModel)]="clinicaForm.motivoConsulta" rows="3"
+                        placeholder="Describa el motivo principal de la consulta..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Examen Físico</label>
+                    <textarea [(ngModel)]="clinicaForm.examenFisico" rows="3"
+                        placeholder="Hallazgos del examen físico..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Código CIE-10</label>
+                        <input type="text" [(ngModel)]="clinicaForm.diagnosticoCie10" placeholder="Ej: R51" />
+                    </div>
+                    <div class="form-group flex-2">
+                        <label>Descripción del Diagnóstico</label>
+                        <input type="text" [(ngModel)]="clinicaForm.diagnosticoDescripcion"
+                            placeholder="Descripción..." />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Plan de Tratamiento</label>
+                    <textarea [(ngModel)]="clinicaForm.planTratamiento" rows="3"
+                        placeholder="Indicaciones, medicamentos, seguimiento..."></textarea>
+                </div>
+            </div>
+
+            <div class="wizard-actions">
+                <button class="btn-secondary" (click)="goBack()">Atrás</button>
+                <button class="btn-primary" (click)="goToCuestionarios()">Continuar a Evaluación Emocional</button>
+            </div>
+        </section>
+
+        <!-- Step 4: Cuestionarios -->
+        <section class="wizard-step animate-fadeIn" *ngIf="currentStep() === 'cuestionarios'">
+            <div class="questionnaire-header">
+                <h2>Evaluación Emocional</h2>
+                <button class="btn-skip" (click)="skipToResults()">
+                    Omitir evaluación
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="questionnaire-tabs">
+                <button *ngFor="let c of cuestionarios(); let i = index" class="tab-btn"
+                    [class.active]="currentQuestionnaireIndex() === i" (click)="currentQuestionnaireIndex.set(i)">
+                    {{ c.tipo }}
+                </button>
+            </div>
+
+            <div class="questionnaire-content" *ngIf="currentQuestionnaire()">
+                <h3>{{ currentQuestionnaire()!.tipo === 'GAD7' ? 'Ansiedad (GAD-7)' :
+                    currentQuestionnaire()!.tipo === 'PHQ9' ? 'Depresión (PHQ-9)' : 'Estrés (PSS-10)' }}</h3>
+
+                <div class="questions-list">
+                    <div class="question-item" *ngFor="let pregunta of currentQuestionnaire()!.preguntas">
+                        <p class="question-text">{{ pregunta.numero }}. {{ pregunta.texto }}</p>
+                        <div class="options-row">
+                            <button *ngFor="let opt of getOptionsForCurrentQuestionnaire()" class="option-btn"
+                                [class.selected]="isRespuestaSelected(currentQuestionnaire()!.tipo, pregunta.numero, opt.value)"
+                                (click)="selectRespuesta(currentQuestionnaire()!.tipo, pregunta.numero, opt.value)">
+                                <span class="opt-label">{{ opt.label }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-actions">
+                <button class="btn-secondary" (click)="goBack()"
+                    *ngIf="currentQuestionnaireIndex() === 0">Atrás</button>
+                <button class="btn-secondary" (click)="prevQuestionnaire()" *ngIf="currentQuestionnaireIndex() > 0">
+                    Anterior Cuestionario
+                </button>
+
+                <button class="btn-primary" (click)="nextQuestionnaire()"
+                    *ngIf="currentQuestionnaireIndex() < cuestionarios().length - 1"
+                    [disabled]="!isCurrentQuestionnaireComplete()">
+                    Siguiente Cuestionario
+                </button>
+
+                <button class="btn-primary" (click)="finalizarConsulta()"
+                    *ngIf="currentQuestionnaireIndex() === cuestionarios().length - 1"
+                    [disabled]="!areAllQuestionnairesComplete()">
+                    Finalizar y Ver Resultados
+                </button>
+            </div>
+        </section>
+
+        <!-- Step 5: Procesando -->
+        <section class="wizard-step processing-step animate-fadeIn" *ngIf="currentStep() === 'procesando'">
+            <div class="processing-animation">
+                <div class="spinner-lg"></div>
+                <h2>Procesando consulta...</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="processingProgress"></div>
+                </div>
+                <p>{{ processingProgress < 40 ? 'Guardando consulta médica...' : processingProgress < 80
+                        ? 'Analizando respuestas emocionales...' : 'Generando resultados...' }}</p>
+            </div>
+        </section>
+
+        <!-- Step 6: Resultados -->
+        <section class="wizard-step results-step animate-fadeIn" *ngIf="currentStep() === 'resultados'">
+            <div class="results-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h2>Consulta Registrada</h2>
+            </div>
+
+            <!-- Summary -->
+            <div class="results-summary">
+                <div class="summary-card">
+                    <h4>Paciente</h4>
+                    <p>{{ pacienteEncontrado?.nombreEncriptado }}</p>
+                    <small>CI: {{ pacienteEncontrado?.cedula }}</small>
+                </div>
+                <div class="summary-card" *ngIf="consultaCreada">
+                    <h4>Consulta</h4>
+                    <p>{{ clinicaForm.motivoConsulta }}</p>
+                    <small *ngIf="clinicaForm.diagnosticoDescripcion">{{ clinicaForm.diagnosticoDescripcion }}</small>
+                </div>
+            </div>
+
+            <!-- Emotional Results -->
+            <div class="emotional-results" *ngIf="resultados">
+                <!-- <div class="results-header-section" *ngIf="resultados.alertaCritica">
+                    <div class="critical-alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                            </path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <span>{{ resultados.alertaCritica }}</span>
+                    </div>
+                </div> -->
+
+                <h3>Resultados de Evaluación Emocional</h3>
+                <div class="results-grid">
+                    <!-- Ansiedad -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="result-label">Ansiedad</span>
+                            <span class="result-level" [ngClass]="getNivelClass(resultados.niveles.ansiedad)">
+                                {{ resultados.niveles.ansiedad }}
+                            </span>
+                        </div>
+                        <div class="main-score">
+                            <span class="score-value">{{ resultados.probabilidadesAdherencia.ansiedad }}%</span>
+                            <span class="score-label">Probabilidad Adherencia</span>
+                        </div>
+                        <div class="triplets-container">
+                            <div class="triplet-row">
+                                <span class="triplet-label">T</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill t-fill"
+                                        [style.width.%]="resultados.tripletasGlobales.ansiedad.t * 100"></div>
+                                </div>
+                                <span class="triplet-value">{{ (resultados.tripletasGlobales.ansiedad.t *
+                                    100).toFixed(1) }}%</span>
+                            </div>
+                            <div class="triplet-row">
+                                <span class="triplet-label">I</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill i-fill"
+                                        [style.width.%]="resultados.tripletasGlobales.ansiedad.i * 100"></div>
+                                </div>
+                                <span class="triplet-value">{{ (resultados.tripletasGlobales.ansiedad.i *
+                                    100).toFixed(1) }}%</span>
+                            </div>
+                            <div class="triplet-row">
+                                <span class="triplet-label">F</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill f-fill"
+                                        [style.width.%]="resultados.tripletasGlobales.ansiedad.f * 100"></div>
+                                </div>
+                                <span class="triplet-value">{{ (resultados.tripletasGlobales.ansiedad.f *
+                                    100).toFixed(1) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Depresión -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="result-label">Depresión</span>
+                            <span class="result-level" [ngClass]="getNivelClass(resultados.niveles.depresion)">
+                                {{ resultados.niveles.depresion }}
+                            </span>
+                        </div>
+                        <div class="main-score">
+                            <span class="score-value">{{ resultados.probabilidadesAdherencia.depresion }}%</span>
+                            <span class="score-label">Probabilidad Adherencia</span>
+                        </div>
+                        <div class="triplets-container">
+                            <div class="triplet-row">
+                                <span class="triplet-label">T</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill t-fill"
+                                        [style.width.%]="resultados.tripletasGlobales.depresion.t * 100"></div>
+                                </div>
+                                <span class="triplet-value">{{ (resultados.tripletasGlobales.depresion.t *
+                                    100).toFixed(1) }}%</span>
+                            </div>
+                            <div class="triplet-row">
+                                <span class="triplet-label">I</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill i-fill"
+                                        [style.width.%]="resultados.tripletasGlobales.depresion.i * 100"></div>
+                                </div>
+                                <span class="triplet-value">{{ (resultados.tripletasGlobales.depresion.i *
+                                    100).toFixed(1) }}%</span>
+                            </div>
+                            <div class="triplet-row">
+                                <span class="triplet-label">F</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill f-fill"
+                                        [style.width.%]="resultados.tripletasGlobales.depresion.f * 100"></div>
+                                </div>
+                                <span class="triplet-value">{{ (resultados.tripletasGlobales.depresion.f *
+                                    100).toFixed(1) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estrés -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <span class="result-label">Estrés</span>
+                            <span class="result-level" [ngClass]="getNivelClass(resultados.niveles.estres)">
+                                {{ resultados.niveles.estres }}
+                            </span>
+                        </div>
+                        <div class="main-score">
+                            <span class="score-value">{{ resultados.probabilidadesAdherencia.estres }}%</span>
+                            <span class="score-label">Probabilidad Adherencia</span>
+                        </div>
+                        <div class="triplets-container">
+                            <div class="triplet-row">
+                                <span class="triplet-label">T</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill t-fill"
+                                        [style.width.%]="resultados.tripletasGlobales.estres.t * 100"></div>
+                                </div>
+                                <span class="triplet-value">{{ (resultados.tripletasGlobales.estres.t * 100).toFixed(1)
+                                    }}%</span>
+                            </div>
+                            <div class="triplet-row">
+                                <span class="triplet-label">I</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill i-fill"
+                                        [style.width.%]="resultados.tripletasGlobales.estres.i * 100"></div>
+                                </div>
+                                <span class="triplet-value">{{ (resultados.tripletasGlobales.estres.i * 100).toFixed(1)
+                                    }}%</span>
+                            </div>
+                            <div class="triplet-row">
+                                <span class="triplet-label">F</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-fill f-fill"
+                                        [style.width.%]="resultados.tripletasGlobales.estres.f * 100"></div>
+                                </div>
+                                <span class="triplet-value">{{ (resultados.tripletasGlobales.estres.f * 100).toFixed(1)
+                                    }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommendations-section"
+                    *ngIf="resultados.recomendaciones && resultados.recomendaciones.length > 0">
+                    <h3>Recomendaciones</h3>
+                    <ul class="recommendations-list">
+                        <li *ngFor="let rec of resultados.recomendaciones">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 11 12 14 22 4"></polyline>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                            </svg>
+                            <span>{{ rec }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="wizard-actions centered">
+                <button class="btn-secondary" (click)="goToConsultas()">
+                    Ver Historial de Consultas
+                </button>
+                <button class="btn-primary" routerLink="/nueva-consulta">
+                    Nueva Consulta
+                </button>
+            </div>
+        </section>
+    </main>
+</div>

@@ -1,0 +1,153 @@
+<div class="registro-page">
+  <!-- Background decorations -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <div class="registro-container animate-fadeIn">
+    <!-- Header -->
+    <div class="form-header">
+      <a routerLink="/login" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        Volver
+      </a>
+      <h1>Crear cuenta</h1>
+      <p class="subtitle">Regístrese como profesional de salud mental</p>
+    </div>
+
+    <!-- Registration Form -->
+    <form class="registro-form" (ngSubmit)="onSubmit()">
+      <!-- Nombre Completo -->
+      <div class="form-group">
+        <label for="nombreCompleto">Nombre completo</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <input type="text" id="nombreCompleto" name="nombreCompleto" [(ngModel)]="nombreCompleto"
+            placeholder="Dr. Juan Pérez" required />
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <polyline points="22,6 12,13 2,6" />
+          </svg>
+          <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="doctor@hospital.com"
+            autocomplete="email" required />
+        </div>
+      </div>
+
+      <!-- Two columns -->
+      <div class="form-row">
+        <!-- Cédula Profesional -->
+        <div class="form-group">
+          <label for="cedulaProfesional">Cédula profesional</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <line x1="7" y1="8" x2="17" y2="8" />
+              <line x1="7" y1="12" x2="13" y2="12" />
+            </svg>
+            <input type="text" id="cedulaProfesional" name="cedulaProfesional" [(ngModel)]="cedulaProfesional"
+              placeholder="123456789" required />
+          </div>
+        </div>
+
+        <!-- Especialidad -->
+        <div class="form-group">
+          <label for="especialidad">Especialidad</label>
+          <div class="input-wrapper select-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+            <select id="especialidad" name="especialidad" [(ngModel)]="especialidad" required>
+              <option value="" disabled>Seleccione...</option>
+              <option *ngFor="let esp of especialidades" [value]="esp">{{ esp }}</option>
+            </select>
+            <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
+            placeholder="Mínimo 6 caracteres" autocomplete="new-password" required />
+          <button type="button" class="toggle-password" (click)="togglePassword()">
+            <svg *ngIf="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar contraseña</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <input [type]="showPassword ? 'text' : 'password'" id="confirmPassword" name="confirmPassword"
+            [(ngModel)]="confirmPassword" placeholder="Repita la contraseña" autocomplete="new-password" required />
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="success-message" *ngIf="successMsg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+        <span>{{ successMsg }}</span>
+      </div>
+
+      <div class="error-message" *ngIf="errorMsg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <span>{{ errorMsg }}</span>
+      </div>
+
+      <!-- Submit button -->
+      <button type="submit" class="btn-register" [disabled]="loading">
+        <span *ngIf="!loading">Crear cuenta</span>
+        <span *ngIf="loading" class="loading-state">
+          <span class="spinner"></span>
+          Registrando...
+        </span>
+      </button>
+
+      <!-- Footer -->
+      <div class="form-footer">
+        <span class="text-muted">¿Ya tienes cuenta?</span>
+        <a routerLink="/login" class="login-link">Inicia sesión</a>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,376 @@
+/* ============================================
+   Registration Page Layout
+   ============================================ */
+.registro-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================
+   Background Decorations
+   ============================================ */
+.bg-decoration {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  animation: float 25s ease-in-out infinite;
+}
+
+.blob-1 {
+  width: 600px;
+  height: 600px;
+  background: linear-gradient(135deg, var(--color-primary-700), #7c3aed);
+  top: -250px;
+  left: -150px;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, var(--color-accent-600), var(--color-primary-500));
+  bottom: -200px;
+  right: -100px;
+  animation-delay: -10s;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(40px, -40px) scale(1.05);
+  }
+
+  66% {
+    transform: translate(-30px, 30px) scale(0.95);
+  }
+}
+
+/* ============================================
+   Registration Container
+   ============================================ */
+.registro-container {
+  width: 100%;
+  max-width: 520px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 60px -20px var(--color-primary-500);
+}
+
+/* ============================================
+   Form Header
+   ============================================ */
+.form-header {
+  margin-bottom: var(--space-6);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  color: var(--color-neutral-400);
+  margin-bottom: var(--space-4);
+  transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+  color: var(--color-primary-400);
+}
+
+.back-link svg {
+  width: 18px;
+  height: 18px;
+}
+
+.form-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+  background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-300));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--color-neutral-400);
+  margin: 0;
+}
+
+/* ============================================
+   Form Styles
+   ============================================ */
+.registro-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-neutral-300);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 500px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: var(--space-4);
+  width: 18px;
+  height: 18px;
+  color: var(--color-neutral-500);
+  pointer-events: none;
+  transition: color var(--transition-fast);
+}
+
+.input-wrapper input,
+.input-wrapper select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  padding-left: 44px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  color: var(--color-neutral-100);
+  font-size: 0.9rem;
+  transition: all var(--transition-fast);
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  outline: none;
+}
+
+.input-wrapper:focus-within .input-icon {
+  color: var(--color-primary-400);
+}
+
+/* Select styling */
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper select {
+  appearance: none;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.select-arrow {
+  position: absolute;
+  right: var(--space-4);
+  width: 18px;
+  height: 18px;
+  color: var(--color-neutral-500);
+  pointer-events: none;
+}
+
+.toggle-password {
+  position: absolute;
+  right: var(--space-3);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--color-neutral-500);
+  transition: all var(--transition-fast);
+}
+
+.toggle-password:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-neutral-300);
+}
+
+.toggle-password svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   Messages
+   ============================================ */
+.error-message,
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.error-message svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--color-error);
+}
+
+.success-message {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+
+.success-message svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--color-success);
+}
+
+/* ============================================
+   Submit Button
+   ============================================ */
+.btn-register {
+  height: 50px;
+  margin-top: var(--space-2);
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-500) 100%);
+  border: none;
+  border-radius: var(--radius-lg);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow:
+    0 4px 15px -3px rgba(99, 102, 241, 0.4),
+    0 0 20px -5px var(--color-primary-500);
+}
+
+.btn-register:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-400) 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 25px -5px rgba(99, 102, 241, 0.5),
+    0 0 30px -5px var(--color-primary-500);
+}
+
+.btn-register:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-register:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* ============================================
+   Form Footer
+   ============================================ */
+.form-footer {
+  text-align: center;
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.form-footer .text-muted {
+  font-size: 0.875rem;
+  color: var(--color-neutral-500);
+  margin: 0;
+}
+
+.login-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary-400);
+  transition: color var(--transition-fast);
+}
+
+.login-link:hover {
+  color: var(--color-primary-300);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 540px) {
+  .registro-container {
+    padding: var(--space-6);
+  }
+
+  .form-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Fix for select options visibility */
+.input-wrapper select option {
+  background-color: var(--color-neutral-800);
+  color: var(--color-neutral-100);
+}

@@ -1,0 +1,370 @@
+/* ============================================
+   Login Page Layout
+   ============================================ */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================
+   Background Decorations
+   ============================================ */
+.bg-decoration {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: float 20s ease-in-out infinite;
+}
+
+.blob-1 {
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  top: -200px;
+  right: -100px;
+  animation-delay: 0s;
+}
+
+.blob-2 {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, var(--color-accent-500), var(--color-primary-600));
+  bottom: -150px;
+  left: -100px;
+  animation-delay: -7s;
+}
+
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, #8b5cf6, var(--color-primary-500));
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: -14s;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+/* ============================================
+   Login Container (Card)
+   ============================================ */
+.login-container {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-10);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 80px -20px var(--color-primary-500);
+}
+
+/* ============================================
+   Branding
+   ============================================ */
+.branding {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-accent-500));
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px -5px var(--color-primary-500);
+}
+
+.logo svg {
+  width: 32px;
+  height: 32px;
+  color: white;
+}
+
+.branding h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+  background: linear-gradient(135deg, var(--color-neutral-50), var(--color-primary-300));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tagline {
+  font-size: 0.9rem;
+  color: var(--color-neutral-400);
+  margin: 0;
+}
+
+/* ============================================
+   Form Styles
+   ============================================ */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-neutral-300);
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: var(--space-1);
+}
+
+.forgot-password a {
+  font-size: 0.85rem;
+  color: var(--color-primary-400);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+  color: var(--color-primary-300);
+}
+
+.input-icon {
+  position: absolute;
+  left: var(--space-4);
+  width: 20px;
+  height: 20px;
+  color: var(--color-neutral-500);
+  pointer-events: none;
+  transition: color var(--transition-fast);
+}
+
+.input-wrapper input {
+  padding-left: 48px;
+  padding-right: 48px;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  color: var(--color-neutral-100);
+  font-size: 0.95rem;
+  transition: all var(--transition-fast);
+}
+
+.input-wrapper input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.input-wrapper input:focus+.input-icon,
+.input-wrapper:focus-within .input-icon {
+  color: var(--color-primary-400);
+}
+
+.toggle-password {
+  position: absolute;
+  right: var(--space-3);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--color-neutral-500);
+  transition: all var(--transition-fast);
+}
+
+.toggle-password:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-neutral-300);
+}
+
+.toggle-password svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   Error Message
+   ============================================ */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-lg);
+  color: #fca5a5;
+  font-size: 0.875rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.error-message svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--color-error);
+}
+
+/* ============================================
+   Submit Button
+   ============================================ */
+.btn-login {
+  height: 52px;
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-500) 100%);
+  border: none;
+  border-radius: var(--radius-lg);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow:
+    0 4px 15px -3px rgba(99, 102, 241, 0.4),
+    0 0 20px -5px var(--color-primary-500);
+}
+
+.btn-login:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-400) 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 25px -5px rgba(99, 102, 241, 0.5),
+    0 0 30px -5px var(--color-primary-500);
+}
+
+.btn-login:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-login:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* ============================================
+   Form Footer
+   ============================================ */
+.form-footer {
+  text-align: center;
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.form-footer .text-muted {
+  font-size: 0.875rem;
+  color: var(--color-neutral-500);
+  margin: 0;
+}
+
+.register-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary-400);
+  transition: color var(--transition-fast);
+}
+
+.register-link:hover {
+  color: var(--color-primary-300);
+}
+
+/* ============================================
+   Page Footer
+   ============================================ */
+.page-footer {
+  margin-top: var(--space-8);
+  text-align: center;
+}
+
+.page-footer p {
+  font-size: 0.8rem;
+  color: var(--color-neutral-600);
+  margin: 0;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 480px) {
+  .login-container {
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+  }
+
+  .branding h1 {
+    font-size: 1.5rem;
+  }
+
+  .logo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .logo svg {
+    width: 28px;
+    height: 28px;
+  }
+}

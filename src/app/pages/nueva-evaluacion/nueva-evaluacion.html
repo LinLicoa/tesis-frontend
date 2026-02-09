@@ -1,0 +1,292 @@
+<div class="page-layout">
+    <!-- Shared Sidebar -->
+    <app-sidebar [activeMenu]="'evaluaciones'"></app-sidebar>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Step: Global Loading -->
+        <section class="step-content centered-loading" *ngIf="currentStep() === 'loading'">
+            <div class="loading-state">
+                <div class="spinner-lg"></div>
+                <p>Cargando información...</p>
+            </div>
+        </section>
+
+        <!-- Step: Select Patient -->
+        <section class="step-content" *ngIf="currentStep() === 'paciente'">
+            <header class="page-header">
+                <div class="header-left">
+                    <h1>Nueva Evaluación</h1>
+                    <p class="header-subtitle">Seleccione el paciente a evaluar</p>
+                </div>
+            </header>
+
+            <!-- Loading -->
+            <div class="loading-state" *ngIf="loading()">
+                <div class="spinner-lg"></div>
+                <p>Cargando pacientes...</p>
+            </div>
+
+            <!-- Error -->
+            <div class="error-banner" *ngIf="error()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                {{ error() }}
+            </div>
+
+            <!-- Patient Grid -->
+            <div class="patients-grid" *ngIf="!loading() && pacientes().length > 0">
+                <div class="patient-select-card" *ngFor="let p of pacientes()"
+                    [class.selected]="selectedPaciente()?.id === p.id" (click)="selectPaciente(p)">
+                    <div class="patient-avatar">{{ p.nombreEncriptado?.charAt(0)?.toUpperCase() || 'P' }}</div>
+                    <div class="patient-info">
+                        <h3>{{ p.nombreEncriptado || 'Sin nombre' }}</h3>
+                        <p>{{ p.cedula }}</p>
+                    </div>
+                    <div class="select-indicator" *ngIf="selectedPaciente()?.id === p.id">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="!loading() && pacientes().length === 0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                </svg>
+                <h3>No hay pacientes</h3>
+                <p>Registre pacientes antes de crear una evaluación.</p>
+            </div>
+
+            <!-- Action Button -->
+            <div class="action-footer" *ngIf="selectedPaciente()">
+                <button class="btn-primary btn-lg" (click)="startEvaluation()"
+                    [disabled]="submitting() || validatingSelection()">
+                    <span *ngIf="!submitting() && !validatingSelection()">Iniciar Evaluación</span>
+                    <span *ngIf="validatingSelection()" class="loading-inline">
+                        <span class="spinner-sm"></span> Validando...
+                    </span>
+                    <span *ngIf="submitting()" class="loading-inline">
+                        <span class="spinner-sm"></span> Creando...
+                    </span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Step: Questionnaire -->
+        <section class="step-content questionnaire-step" *ngIf="currentStep() === 'cuestionario'">
+            <!-- Progress Header -->
+            <div class="questionnaire-header">
+                <div class="questionnaire-info">
+                    <span class="questionnaire-label">{{ getQuestionnaireLabel(currentQuestionnaire().tipo) }}</span>
+                    <span class="question-counter">
+                        Pregunta {{ currentQuestionIndex() + 1 }} de {{ currentQuestionnaire().preguntas.length || 0
+                        }}
+                    </span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" [style.width.%]="progress()"></div>
+                </div>
+                <div class="total-progress">
+                    Cuestionario {{ currentQuestionnaireIndex() + 1 }} de {{ cuestionarios().length }}
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="question-card animate-fadeIn" *ngIf="currentQuestion()">
+                <p class="question-text">{{ currentQuestion().texto }}</p>
+
+                <div class="likert-options">
+                    <button *ngFor="let option of currentOptions()" class="likert-btn"
+                        [class.selected]="getCurrentAnswer() === option.value" (click)="answerQuestion(option.value)">
+                        <span class="likert-label">{{ option.label }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="question-nav">
+                <button class="btn-secondary" (click)="previousQuestion()"
+                    [disabled]="currentQuestionnaireIndex() === 0 && currentQuestionIndex() === 0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                    Anterior
+                </button>
+            </div>
+        </section>
+
+        <!-- Step: Processing -->
+        <section class="step-content processing-step" *ngIf="currentStep() === 'procesando'">
+            <div class="processing-card animate-fadeIn">
+                <div class="processing-spinner"></div>
+                <h2>Procesando evaluación...</h2>
+                <p>{{ estadoProcesamiento()?.mensaje || 'Analizando respuestas con inteligencia artificial' }}</p>
+
+                <div class="processing-progress" *ngIf="estadoProcesamiento()?.progreso">
+                    <div class="progress-bar-container large">
+                        <div class="progress-bar" [style.width.%]="estadoProcesamiento()?.progreso"></div>
+                    </div>
+                    <span class="progress-text">{{ estadoProcesamiento()?.progreso }}%</span>
+                </div>
+
+                <div class="error-banner" *ngIf="error()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    {{ error() }}
+                </div>
+            </div>
+        </section>
+
+        <!-- Step: Results -->
+        <section class="step-content results-step" *ngIf="currentStep() === 'resultados' && resultados()">
+            <header class="page-header">
+                <h1>Resultados de la Evaluación</h1>
+                <p class="header-subtitle">Análisis completado exitosamente</p>
+            </header>
+
+            <!-- Scores Grid -->
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-header">
+                        <span class="result-title">Ansiedad (GAD-7)</span>
+                        <span class="result-score">{{ resultados()?.puntajes?.gad7 }}</span>
+                    </div>
+                    <div class="result-level" [class]="getNivelClass(resultados()?.niveles?.ansiedad || '')">
+                        {{ resultados()?.niveles?.ansiedad }}
+                    </div>
+                    <div class="triplet-visual">
+                        <div class="triplet-bar">
+                            <div class="triplet-segment truth"
+                                [style.width.%]="(resultados()?.tripletasGlobales?.ansiedad?.t || 0) * 100">
+                                {{ ((resultados()?.tripletasGlobales?.ansiedad?.t || 0) * 100).toFixed(0) }}%
+                            </div>
+                            <div class="triplet-segment indetermination"
+                                [style.width.%]="(resultados()?.tripletasGlobales?.ansiedad?.i || 0) * 100">
+                                {{ ((resultados()?.tripletasGlobales?.ansiedad?.i || 0) * 100).toFixed(0) }}%
+                            </div>
+                            <div class="triplet-segment falsity"
+                                [style.width.%]="(resultados()?.tripletasGlobales?.ansiedad?.f || 0) * 100">
+                                {{ ((resultados()?.tripletasGlobales?.ansiedad?.f || 0) * 100).toFixed(0) }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <span class="result-title">Depresión (PHQ-9)</span>
+                        <span class="result-score">{{ resultados()?.puntajes?.phq9 }}</span>
+                    </div>
+                    <div class="result-level" [class]="getNivelClass(resultados()?.niveles?.depresion || '')">
+                        {{ resultados()?.niveles?.depresion }}
+                    </div>
+                    <div class="triplet-visual">
+                        <div class="triplet-bar">
+                            <div class="triplet-segment truth"
+                                [style.width.%]="(resultados()?.tripletasGlobales?.depresion?.t || 0) * 100">
+                                {{ ((resultados()?.tripletasGlobales?.depresion?.t || 0) * 100).toFixed(0) }}%
+                            </div>
+                            <div class="triplet-segment indetermination"
+                                [style.width.%]="(resultados()?.tripletasGlobales?.depresion?.i || 0) * 100">
+                                {{ ((resultados()?.tripletasGlobales?.depresion?.i || 0) * 100).toFixed(0) }}%
+                            </div>
+                            <div class="triplet-segment falsity"
+                                [style.width.%]="(resultados()?.tripletasGlobales?.depresion?.f || 0) * 100">
+                                {{ ((resultados()?.tripletasGlobales?.depresion?.f || 0) * 100).toFixed(0) }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <span class="result-title">Estrés (PSS-10)</span>
+                        <span class="result-score">{{ resultados()?.puntajes?.pss10 }}</span>
+                    </div>
+                    <div class="result-level" [class]="getNivelClass(resultados()?.niveles?.estres || '')">
+                        {{ resultados()?.niveles?.estres }}
+                    </div>
+                    <div class="triplet-visual">
+                        <div class="triplet-bar">
+                            <div class="triplet-segment truth"
+                                [style.width.%]="(resultados()?.tripletasGlobales?.estres?.t || 0) * 100">
+                                {{ ((resultados()?.tripletasGlobales?.estres?.t || 0) * 100).toFixed(0) }}%
+                            </div>
+                            <div class="triplet-segment indetermination"
+                                [style.width.%]="(resultados()?.tripletasGlobales?.estres?.i || 0) * 100">
+                                {{ ((resultados()?.tripletasGlobales?.estres?.i || 0) * 100).toFixed(0) }}%
+                            </div>
+                            <div class="triplet-segment falsity"
+                                [style.width.%]="(resultados()?.tripletasGlobales?.estres?.f || 0) * 100">
+                                {{ ((resultados()?.tripletasGlobales?.estres?.f || 0) * 100).toFixed(0) }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adherence Chart -->
+            <div class="adherence-card">
+                <h3>Probabilidad de Adherencia al Tratamiento</h3>
+                <div class="adherence-bars">
+                    <div class="adherence-item">
+                        <span class="adherence-label">Ansiedad</span>
+                        <div class="adherence-bar">
+                            <div class="adherence-fill high"
+                                [style.width.%]="resultados()?.probabilidadesAdherencia?.ansiedad"></div>
+                        </div>
+                        <span class="adherence-value">{{ resultados()?.probabilidadesAdherencia?.ansiedad?.toFixed(1)
+                            }}%</span>
+                    </div>
+                    <div class="adherence-item">
+                        <span class="adherence-label">Depresión</span>
+                        <div class="adherence-bar">
+                            <div class="adherence-fill medium"
+                                [style.width.%]="resultados()?.probabilidadesAdherencia?.depresion">
+                            </div>
+                        </div>
+                        <span class="adherence-value">{{ resultados()?.probabilidadesAdherencia?.depresion?.toFixed(1)
+                            }}%</span>
+                    </div>
+                    <div class="adherence-item">
+                        <span class="adherence-label">Estrés</span>
+                        <div class="adherence-bar">
+                            <div class="adherence-fill low"
+                                [style.width.%]="resultados()?.probabilidadesAdherencia?.estres"></div>
+                        </div>
+                        <span class="adherence-value">{{ resultados()?.probabilidadesAdherencia?.estres?.toFixed(1)
+                            }}%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="recommendations-card"
+                *ngIf="resultados()?.recomendaciones && resultados()!.recomendaciones!.length > 0">
+                <h3>Recomendaciones</h3>
+                <div class="recommendations-list">
+                    <div class="recommendation-item" *ngFor="let rec of resultados()?.recomendaciones">
+                        <p class="rec-description">{{ rec }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action -->
+            <div class="results-action">
+                <button class="btn-primary btn-lg" (click)="goToEvaluaciones()">
+                    Volver a Evaluaciones
+                </button>
+            </div>
+        </section>
+    </main>
+</div>

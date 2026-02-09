@@ -1,0 +1,188 @@
+<div class="page-layout">
+    <!-- Shared Sidebar -->
+    <app-sidebar [activeMenu]="'perfil'"></app-sidebar>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <h1>Mi Perfil</h1>
+            <p class="header-subtitle">Información de su cuenta profesional</p>
+        </header>
+
+        <!-- Skeleton Loading -->
+        <div class="profile-card animate-fadeIn" *ngIf="loading()">
+            <div class="skeleton-profile-hero">
+                <div class="skeleton skeleton-avatar-large"></div>
+                <div style="flex: 1;">
+                    <div class="skeleton skeleton-text-lg" style="width: 200px; margin-bottom: 12px;"></div>
+                    <div class="skeleton skeleton-text-sm" style="width: 120px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-info-grid">
+                <div class="skeleton-info-item" *ngFor="let i of [1,2,3,4]">
+                    <div class="skeleton skeleton-info-icon"></div>
+                    <div style="flex: 1;">
+                        <div class="skeleton skeleton-text-sm" style="width: 80px; margin-bottom: 8px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 140px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-card animate-fadeIn" *ngIf="!loading()">
+            <!-- Avatar & Name -->
+            <div class="profile-hero">
+                <div class="avatar-large">
+                    {{ currentUser()?.nombreCompleto?.charAt(0)?.toUpperCase() || 'U' }}
+                </div>
+                <div class="profile-name-section">
+                    <h2>{{ currentUser()?.nombreCompleto || 'Usuario' }}</h2>
+                    <span class="role-badge" [class.admin]="currentUser()?.rol === 'ADMIN'">
+                        {{ currentUser()?.rol === 'ADMIN' ? 'Administrador' : 'Profesional de Salud' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Correo electrónico</span>
+                        <span class="info-value">{{ currentUser()?.email || 'No disponible' }}</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="16" rx="2" />
+                            <line x1="7" y1="8" x2="17" y2="8" />
+                            <line x1="7" y1="12" x2="13" y2="12" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Cédula profesional</span>
+                        <span class="info-value">{{ currentUser()?.cedulaProfesional || 'No disponible' }}</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Especialidad</span>
+                        <span class="info-value">{{ currentUser()?.especialidad || 'No especificada' }}</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon" [class.active]="currentUser()?.activo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Estado de la cuenta</span>
+                        <span class="info-value status" [class.active]="currentUser()?.activo">
+                            {{ currentUser()?.activo ? 'Activa' : 'Inactiva' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Section -->
+        <div class="section-card animate-fadeIn" style="animation-delay: 0.1s;">
+            <h3>Seguridad</h3>
+            <p class="section-desc">Opciones de seguridad de su cuenta</p>
+
+            <div class="security-options">
+                <button class="security-btn" (click)="openPasswordModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <span>Cambiar contraseña</span>
+                    <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Cambiar Contraseña -->
+    <div class="modal-overlay" *ngIf="showPasswordModal()" (click)="closePasswordModal()">
+        <div class="modal-content animate-fadeIn" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Cambiar contraseña</h2>
+                <button class="close-btn" (click)="closePasswordModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <form class="modal-form" (ngSubmit)="onChangePassword()">
+                <div class="form-group">
+                    <label for="currentPassword">Contraseña actual *</label>
+                    <input type="password" id="currentPassword" [(ngModel)]="currentPassword" name="currentPassword"
+                        placeholder="Ingrese su contraseña actual" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">Nueva contraseña *</label>
+                    <input type="password" id="newPassword" [(ngModel)]="newPassword" name="newPassword"
+                        placeholder="Ingrese la nueva contraseña" required />
+                    <span class="form-hint">Mínimo 6 caracteres</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar nueva contraseña *</label>
+                    <input type="password" id="confirmPassword" [(ngModel)]="confirmPassword" name="confirmPassword"
+                        placeholder="Confirme la nueva contraseña" required />
+                </div>
+
+                <!-- Messages -->
+                <div class="success-message" *ngIf="passwordSuccess">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    {{ passwordSuccess }}
+                </div>
+                <div class="error-message" *ngIf="passwordError">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    {{ passwordError }}
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" (click)="closePasswordModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary" [disabled]="passwordLoading">
+                        <span *ngIf="!passwordLoading">Cambiar contraseña</span>
+                        <span *ngIf="passwordLoading" class="loading-inline">
+                            <span class="spinner-sm"></span>
+                            Guardando...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

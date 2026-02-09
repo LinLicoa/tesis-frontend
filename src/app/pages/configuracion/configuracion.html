@@ -1,0 +1,183 @@
+<div class="page-layout">
+    <!-- Shared Sidebar -->
+    <app-sidebar [activeMenu]="'configuracion'"></app-sidebar>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div class="header-left">
+                <h1>Configuración del Sistema</h1>
+                <p class="header-subtitle">Administre los parámetros de configuración del sistema</p>
+            </div>
+            <button class="btn-primary" (click)="openCreateModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Nuevo parámetro
+            </button>
+        </header>
+
+        <!-- Loading State -->
+        <div class="loading-state" *ngIf="loading()">
+            <div class="spinner-lg"></div>
+            <p>Cargando configuración...</p>
+        </div>
+
+        <!-- Parameters Table -->
+        <div class="table-card animate-fadeIn" *ngIf="!loading()">
+            <table class="data-table" *ngIf="parametros().length > 0; else noParametros">
+                <thead>
+                    <tr>
+                        <th>Clave</th>
+                        <th>Valor</th>
+                        <th>Tipo</th>
+                        <th>Categoría</th>
+                        <th>Editable</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let param of parametros()">
+                        <td>
+                            <code class="code-badge">{{ param.clave }}</code>
+                        </td>
+                        <td>
+                            <span class="value-cell">{{ param.valor }}</span>
+                        </td>
+                        <td>
+                            <span class="tipo-badge" [attr.data-tipo]="param.tipoDato">
+                                {{ getTipoDatoIcon(param.tipoDato) }}
+                                {{ param.tipoDato }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="categoria-badge" *ngIf="param.categoria">{{ param.categoria }}</span>
+                            <span class="text-muted" *ngIf="!param.categoria">-</span>
+                        </td>
+                        <td>
+                            <span class="editable-indicator" [class.active]="param.editable !== false">
+                                {{ param.editable !== false ? 'Sí' : 'No' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn" title="Editar" (click)="openEditModal(param)"
+                                    [disabled]="param.editable === false">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
+                                </button>
+                                <button class="action-btn danger" title="Eliminar" (click)="deleteParametro(param)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6" />
+                                        <path
+                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <ng-template #noParametros>
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33" />
+                    </svg>
+                    <h3>No hay parámetros configurados</h3>
+                    <p>Comience agregando un nuevo parámetro de sistema.</p>
+                    <button class="btn-primary" (click)="openCreateModal()">
+                        Agregar parámetro
+                    </button>
+                </div>
+            </ng-template>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
+        <div class="modal-content animate-fadeIn" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>{{ modalMode === 'create' ? 'Nuevo parámetro' : 'Editar parámetro' }}</h2>
+                <button class="close-btn" (click)="closeModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <form class="modal-form" (ngSubmit)="onSubmitForm()">
+                <div class="form-group">
+                    <label for="formClave">Clave *</label>
+                    <input type="text" id="formClave" [(ngModel)]="formClave" name="formClave"
+                        placeholder="JWT_EXPIRATION" [disabled]="modalMode === 'edit'" required />
+                    <span class="form-hint">Identificador único en mayúsculas con guiones bajos</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="formValor">Valor *</label>
+                    <input type="text" id="formValor" [(ngModel)]="formValor" name="formValor" placeholder="3600"
+                        required />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="formTipoDato">Tipo de dato</label>
+                        <select id="formTipoDato" [(ngModel)]="formTipoDato" name="formTipoDato">
+                            <option *ngFor="let tipo of tiposDato" [value]="tipo">{{ tipo }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="formCategoria">Categoría</label>
+                        <select id="formCategoria" [(ngModel)]="formCategoria" name="formCategoria">
+                            <option value="">Sin categoría</option>
+                            <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [(ngModel)]="formEditable" name="formEditable" />
+                        <span class="checkmark"></span>
+                        Permitir edición desde el panel
+                    </label>
+                </div>
+
+                <!-- Messages -->
+                <div class="success-message" *ngIf="formSuccess">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    {{ formSuccess }}
+                </div>
+                <div class="error-message" *ngIf="formError">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    {{ formError }}
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary" [disabled]="formLoading">
+                        <span *ngIf="!formLoading">{{ modalMode === 'create' ? 'Crear' : 'Guardar' }}</span>
+                        <span *ngIf="formLoading" class="loading-state">
+                            <span class="spinner"></span>
+                            Guardando...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

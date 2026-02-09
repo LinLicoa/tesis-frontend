@@ -1,0 +1,259 @@
+<div class="page-layout">
+    <!-- Shared Sidebar -->
+    <app-sidebar [activeMenu]="'evaluaciones'"></app-sidebar>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-left">
+                <h1>Evaluaciones</h1>
+                <p class="header-subtitle">Historial de evaluaciones psicológicas realizadas</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" (click)="goToNuevaEvaluacion()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nueva Evaluación
+                </button>
+                <select class="filter-select" [(ngModel)]="filterEstado">
+                    <option value="">Todos los estados</option>
+                    <option value="COMPLETADA">Completadas</option>
+                    <option value="EN_PROGRESO">En progreso</option>
+                    <option value="CANCELADA">Canceladas</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- Skeleton Loading State -->
+        <section class="evaluations-list animate-fadeIn" *ngIf="loading()">
+            <div class="skeleton-evaluation-card" *ngFor="let i of [1,2,3,4]">
+                <div class="skeleton-eval-header">
+                    <div class="skeleton-eval-main">
+                        <div class="skeleton skeleton-text" style="width: 120px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 180px;"></div>
+                        <div class="skeleton skeleton-text-sm" style="width: 80px;"></div>
+                    </div>
+                    <div class="skeleton-eval-levels">
+                        <div class="skeleton skeleton-text" style="width: 60px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 60px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 60px;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Evaluations List -->
+        <section class="evaluations-list animate-fadeIn" *ngIf="!loading()">
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="filteredEvaluaciones.length === 0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <h3>No hay evaluaciones</h3>
+                <p>{{ filterEstado ? 'No se encontraron evaluaciones con este filtro.' : 'Las evaluaciones aparecerán
+                    aquí una vez que se realicen.' }}</p>
+                <button class="btn-primary btn-mt" (click)="goToNuevaEvaluacion()" *ngIf="!filterEstado">
+                    Crear primera evaluación
+                </button>
+            </div>
+
+            <!-- Evaluation Cards -->
+            <div class="evaluation-card" *ngFor="let ev of filteredEvaluaciones"
+                [class.expanded]="expandedId === ev.id">
+                <!-- Card Header -->
+                <div class="eval-header" (click)="toggleDetails(ev.id)">
+                    <div class="eval-main">
+                        <div class="eval-date-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            <span>{{ formatDate(ev.fechaHora) }}</span>
+                        </div>
+                        <div class="patient-name">
+                            {{ getPacienteNombre(ev.pacienteId) }}
+                        </div>
+                        <div class="status-actions">
+                            <span class="status-badge"
+                                [class.completed]="ev.estado === 'COMPLETADA' || ev.estado === 'completada'"
+                                [class.progress]="ev.estado === 'EN_PROGRESO' || ev.estado === 'en_progreso'"
+                                [class.error]="ev.estado === 'CANCELADA' || ev.estado === 'cancelada'">
+                                {{ (ev.estado === 'EN_PROGRESO' || ev.estado === 'en_progreso') ? 'En Progreso' :
+                                (ev.estado || 'Pendiente') }}
+                            </span>
+                            <button class="continue-btn"
+                                *ngIf="ev.estado === 'EN_PROGRESO' || ev.estado === 'en_progreso'"
+                                (click)="$event.stopPropagation(); goToNuevaEvaluacion(ev.id)">
+                                Continuar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="eval-levels">
+                        <div class="level-item">
+                            <span class="level-label">Ansiedad</span>
+                            <span class="level-value" [ngClass]="getNivelClass(ev.nivelAnsiedad)">
+                                {{ ev.nivelAnsiedad || '-' }}
+                            </span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-label">Depresión</span>
+                            <span class="level-value" [ngClass]="getNivelClass(ev.nivelDepresion)">
+                                {{ ev.nivelDepresion || '-' }}
+                            </span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-label">Estrés</span>
+                            <span class="level-value" [ngClass]="getNivelClass(ev.nivelEstres)">
+                                {{ ev.nivelEstres || '-' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Expanded Details -->
+                <div class="eval-details" *ngIf="expandedId === ev.id">
+                    <!-- Scores Section -->
+                    <div class="details-section">
+                        <h4>Puntajes de Cuestionarios</h4>
+                        <div class="scores-grid">
+                            <div class="score-card">
+                                <span class="score-label">GAD-7 (Ansiedad)</span>
+                                <span class="score-value" [ngClass]="getScoreColor(ev.gad7Puntaje, 21)">
+                                    {{ ev.gad7Puntaje !== undefined ? ev.gad7Puntaje : '-' }}<small>/21</small>
+                                </span>
+                            </div>
+                            <div class="score-card">
+                                <span class="score-label">PHQ-9 (Depresión)</span>
+                                <span class="score-value" [ngClass]="getScoreColor(ev.phq9Puntaje, 27)">
+                                    {{ ev.phq9Puntaje !== undefined ? ev.phq9Puntaje : '-' }}<small>/27</small>
+                                </span>
+                            </div>
+                            <div class="score-card">
+                                <span class="score-label">PSS-10 (Estrés)</span>
+                                <span class="score-value" [ngClass]="getScoreColor(ev.pss10Puntaje, 40)">
+                                    {{ ev.pss10Puntaje !== undefined ? ev.pss10Puntaje : '-' }}<small>/40</small>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Saved Responses Section -->
+                    <div class="details-section" *ngIf="getRespuestas(ev.id)">
+                        <h4>Respuestas Guardadas</h4>
+
+                        <!-- GAD7 -->
+                        <div class="questionnaire-responses" *ngIf="getRespuestas(ev.id)?.gad7?.length">
+                            <h5>GAD-7 (Ansiedad)</h5>
+                            <div class="response-grid">
+                                <div class="response-item" *ngFor="let item of getRespuestas(ev.id)!.gad7">
+                                    <span class="item-number">#{{item.numeroItem}}</span>
+                                    <span class="item-value">{{item.respuesta}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PHQ9 -->
+                        <div class="questionnaire-responses" *ngIf="getRespuestas(ev.id)?.phq9?.length">
+                            <h5>PHQ-9 (Depresión)</h5>
+                            <div class="response-grid">
+                                <div class="response-item" *ngFor="let item of getRespuestas(ev.id)!.phq9">
+                                    <span class="item-number">#{{item.numeroItem}}</span>
+                                    <span class="item-value">{{item.respuesta}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PSS10 -->
+                        <div class="questionnaire-responses" *ngIf="getRespuestas(ev.id)?.pss10?.length">
+                            <h5>PSS-10 (Estrés)</h5>
+                            <div class="response-grid">
+                                <div class="response-item" *ngFor="let item of getRespuestas(ev.id)!.pss10">
+                                    <span class="item-number">#{{item.numeroItem}}</span>
+                                    <span class="item-value">{{item.respuesta}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State for Details -->
+                    <div class="details-loading" *ngIf="isLoadingRespuestas(ev.id)">
+                        <div class="spinner-sm"></div>
+                        <span>Cargando respuestas...</span>
+                    </div>
+
+                    <!-- Neutrosophic Triplets -->
+                    <div class="details-section" *ngIf="ev.ansiedadT !== undefined">
+                        <h4>Análisis Neutrosófico (Ansiedad)</h4>
+                        <div class="triplet-visual">
+                            <div class="triplet-bar">
+                                <div class="triplet-segment truth" [style.width.%]="(ev.ansiedadT || 0) * 100">
+                                    <span>T: {{ ((ev.ansiedadT || 0) * 100).toFixed(0) }}%</span>
+                                </div>
+                                <div class="triplet-segment indetermination"
+                                    [style.width.%]="(ev.ansiedadI || 0) * 100">
+                                    <span>I: {{ ((ev.ansiedadI || 0) * 100).toFixed(0) }}%</span>
+                                </div>
+                                <div class="triplet-segment falsity" [style.width.%]="(ev.ansiedadF || 0) * 100">
+                                    <span>F: {{ ((ev.ansiedadF || 0) * 100).toFixed(0) }}%</span>
+                                </div>
+                            </div>
+                            <div class="triplet-legend">
+                                <span class="legend-item truth">Verdad (T)</span>
+                                <span class="legend-item indetermination">Indeterminación (I)</span>
+                                <span class="legend-item falsity">Falsedad (F)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Adherence Probability -->
+                    <div class="details-section" *ngIf="ev.probAdherenciaAlta !== undefined">
+                        <h4>Probabilidad de Adherencia al Tratamiento</h4>
+                        <div class="adherence-bars">
+                            <div class="adherence-item">
+                                <span class="adherence-label">Alta</span>
+                                <div class="adherence-bar">
+                                    <div class="adherence-fill high" [style.width.%]="ev.probAdherenciaAlta || 0"></div>
+                                </div>
+                                <span class="adherence-value">{{ (ev.probAdherenciaAlta || 0).toFixed(1) }}%</span>
+                            </div>
+                            <div class="adherence-item">
+                                <span class="adherence-label">Media</span>
+                                <div class="adherence-bar">
+                                    <div class="adherence-fill medium" [style.width.%]="ev.probAdherenciaMedia || 0">
+                                    </div>
+                                </div>
+                                <span class="adherence-value">{{ (ev.probAdherenciaMedia || 0).toFixed(1) }}%</span>
+                            </div>
+                            <div class="adherence-item">
+                                <span class="adherence-label">Baja</span>
+                                <div class="adherence-bar">
+                                    <div class="adherence-fill low" [style.width.%]="ev.probAdherenciaBaja || 0"></div>
+                                </div>
+                                <span class="adherence-value">{{ (ev.probAdherenciaBaja || 0).toFixed(1) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observations -->
+                    <div class="details-section" *ngIf="ev.observaciones">
+                        <h4>Observaciones</h4>
+                        <p class="observations-text">{{ ev.observaciones }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>

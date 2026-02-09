@@ -1,0 +1,29 @@
+// Include theming for Angular Material with `mat.theme()`.
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((color: (primary: mat.$violet-palette,
+        tertiary: mat.$cyan-palette,
+      ),
+      typography: Inter,
+      density: 0,
+    ));
+}
+
+body {
+  color-scheme: dark;
+  background-color: transparent;
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+}
+
+// Override Angular Material for dark theme
+.mat-mdc-form-field {
+  --mdc-filled-text-field-container-color: rgba(255, 255, 255, 0.05);
+}
+
+.mat-mdc-button,
+.mat-mdc-raised-button {
+  border-radius: 0.75rem !important;
+}

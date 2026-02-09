@@ -1,0 +1,425 @@
+/* Page Layout */
+.page-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    padding: var(--space-6) var(--space-8);
+    min-height: 100vh;
+}
+
+/* Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-6);
+}
+
+.page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+    color: var(--color-neutral-100);
+}
+
+.header-subtitle {
+    font-size: 0.95rem;
+    color: var(--color-neutral-500);
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--space-3);
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-500));
+    border: none;
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: 0 4px 15px -3px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px rgba(99, 102, 241, 0.5);
+}
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-6);
+}
+
+.search-bar svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-neutral-500);
+    flex-shrink: 0;
+}
+
+.search-bar input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--color-neutral-100);
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.search-bar input::placeholder {
+    color: var(--color-neutral-500);
+}
+
+/* Consultas List */
+.consultas-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* Consulta Card */
+.consulta-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: all var(--transition-fast);
+}
+
+.consulta-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.consulta-card.expanded {
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 20px -5px rgba(99, 102, 241, 0.3);
+}
+
+.consulta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-5);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.consulta-header:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.consulta-main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    flex: 1;
+}
+
+.consulta-date {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-neutral-400);
+    font-size: 0.9rem;
+    min-width: 180px;
+}
+
+.consulta-date svg {
+    width: 18px;
+    height: 18px;
+    color: var(--color-primary-400);
+}
+
+.patient-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.patient-name {
+    font-weight: 500;
+    color: var(--color-neutral-100);
+}
+
+.patient-cedula {
+    font-size: 0.8rem;
+    color: var(--color-neutral-500);
+}
+
+.consulta-motivo {
+    flex: 1;
+    color: var(--color-neutral-300);
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.expand-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--color-neutral-500);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.expand-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-neutral-200);
+}
+
+.expand-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: transform var(--transition-fast);
+}
+
+.consulta-card.expanded .expand-btn svg {
+    transform: rotate(180deg);
+}
+
+/* Expanded Details */
+.consulta-details {
+    padding: var(--space-5);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.details-section {
+    margin-bottom: var(--space-5);
+}
+
+.details-section:last-child {
+    margin-bottom: 0;
+}
+
+.details-section h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-neutral-300);
+    margin-bottom: var(--space-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Vitals Grid */
+.vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--space-3);
+}
+
+.vital-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.vital-label {
+    font-size: 0.75rem;
+    color: var(--color-neutral-500);
+    text-transform: uppercase;
+}
+
+.vital-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-primary-400);
+}
+
+/* Text Sections */
+.diagnosis-text,
+.exam-text,
+.treatment-text {
+    color: var(--color-neutral-300);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.cie-code {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--color-primary-400);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-right: var(--space-2);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: var(--space-12) var(--space-6);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xl);
+}
+
+.empty-state svg {
+    width: 64px;
+    height: 64px;
+    color: var(--color-neutral-600);
+    margin-bottom: var(--space-4);
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    color: var(--color-neutral-300);
+    margin-bottom: var(--space-2);
+}
+
+.empty-state p {
+    color: var(--color-neutral-500);
+    margin-bottom: var(--space-6);
+}
+
+.btn-mt {
+    margin-top: var(--space-4);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .consulta-main {
+        flex-wrap: wrap;
+        gap: var(--space-3);
+    }
+
+    .consulta-motivo {
+        width: 100%;
+        white-space: normal;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: var(--space-4);
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .consulta-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Neutrosophic Styles inside Consultas */
+.neutrosophic-grid-sm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.tripleta-card-sm {
+    background: var(--bg-dark);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+}
+
+.t-header-sm {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.t-title-sm {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.t-percent-sm {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.bars-container-sm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bar-row-sm {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bar-lbl {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    width: 12px;
+}
+
+.prog-track {
+    flex: 1;
+    height: 6px;
+    background: var(--surface-hover);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.prog-fill {
+    height: 100%;
+    border-radius: 99px;
+}
+
+.t-fill {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.f-fill {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.i-fill {
+    background: linear-gradient(90deg, #eab308, #ca8a04);
+}

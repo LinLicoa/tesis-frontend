@@ -1,0 +1,266 @@
+<div class="page-layout">
+    <app-sidebar [activeMenu]="'consultas'"></app-sidebar>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div class="header-left">
+                <h1>Consultas Médicas</h1>
+                <p class="header-subtitle">Historial de consultas y evaluaciones realizadas</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" (click)="goToNuevaConsulta()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nueva Consulta
+                </button>
+            </div>
+        </header>
+
+        <!-- Search -->
+        <div class="search-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input type="text" placeholder="Buscar por paciente, cédula o motivo de consulta..."
+                [(ngModel)]="searchTerm" (input)="onSearch()" />
+        </div>
+
+        <!-- Skeleton Loading -->
+        <section class="consultas-list animate-fadeIn" *ngIf="loading()">
+            <div class="skeleton-evaluation-card" *ngFor="let i of [1,2,3,4]">
+                <div class="skeleton-eval-header">
+                    <div class="skeleton-eval-main">
+                        <div class="skeleton skeleton-text" style="width: 140px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 200px;"></div>
+                        <div class="skeleton skeleton-text-sm" style="width: 100px;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Consultas List -->
+        <section class="consultas-list animate-fadeIn" *ngIf="!loading()">
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="filteredConsultas().length === 0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" />
+                    <path d="M12 8v8" />
+                    <path d="M8 12h8" />
+                </svg>
+                <h3>No hay consultas</h3>
+                <p>{{ searchTerm ? 'No se encontraron resultados para su búsqueda.' : 'Las consultas aparecerán aquí una
+                    vez que se registren.' }}</p>
+                <button class="btn-primary btn-mt" (click)="goToNuevaConsulta()" *ngIf="!searchTerm">
+                    Registrar primera consulta
+                </button>
+            </div>
+
+            <!-- Consulta Cards -->
+            <div class="consulta-card" *ngFor="let c of filteredConsultas()" [class.expanded]="expandedId === c.id">
+
+                <div class="consulta-header" (click)="toggleDetails(c.id)">
+                    <div class="consulta-main">
+                        <div class="consulta-date">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            <span>{{ formatDate(c.fechaHora) }}</span>
+                        </div>
+                        <div class="patient-info">
+                            <span class="patient-name">{{ getPacienteNombre(c.pacienteId) }}</span>
+                            <span class="patient-cedula">CI: {{ getPacienteCedula(c.pacienteId) }}</span>
+                        </div>
+                        <div class="consulta-motivo">
+                            {{ c.motivoConsulta }}
+                        </div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Expanded Details -->
+                <div class="consulta-details" *ngIf="expandedId === c.id">
+                    <!-- Signos Vitales -->
+                    <div class="details-section" *ngIf="c.presionArterial || c.frecuenciaCardiaca">
+                        <h4>Signos Vitales</h4>
+                        <div class="vitals-grid">
+                            <div class="vital-item" *ngIf="c.presionArterial">
+                                <span class="vital-label">Presión</span>
+                                <span class="vital-value">{{ c.presionArterial }}</span>
+                            </div>
+                            <div class="vital-item" *ngIf="c.frecuenciaCardiaca">
+                                <span class="vital-label">FC</span>
+                                <span class="vital-value">{{ c.frecuenciaCardiaca }} bpm</span>
+                            </div>
+                            <div class="vital-item" *ngIf="c.temperatura">
+                                <span class="vital-label">Temp</span>
+                                <span class="vital-value">{{ c.temperatura }}°C</span>
+                            </div>
+                            <div class="vital-item" *ngIf="c.saturacionOxigeno">
+                                <span class="vital-label">SpO2</span>
+                                <span class="vital-value">{{ c.saturacionOxigeno }}%</span>
+                            </div>
+                            <div class="vital-item" *ngIf="c.pesoKg">
+                                <span class="vital-label">Peso</span>
+                                <span class="vital-value">{{ c.pesoKg }} kg</span>
+                            </div>
+                            <div class="vital-item" *ngIf="c.tallaCm">
+                                <span class="vital-label">Talla</span>
+                                <span class="vital-value">{{ c.tallaCm }} cm</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnóstico -->
+                    <div class="details-section" *ngIf="c.diagnosticoDescripcion">
+                        <h4>Diagnóstico</h4>
+                        <p class="diagnosis-text">
+                            <span class="cie-code" *ngIf="c.diagnosticoCie10">{{ c.diagnosticoCie10 }}</span>
+                            {{ c.diagnosticoDescripcion }}
+                        </p>
+                    </div>
+
+                    <!-- Examen Físico -->
+                    <div class="details-section" *ngIf="c.examenFisico">
+                        <h4>Examen Físico</h4>
+                        <p class="exam-text">{{ c.examenFisico }}</p>
+                    </div>
+
+                    <!-- Plan de Tratamiento -->
+                    <div class="details-section" *ngIf="c.planTratamiento">
+                        <h4>Plan de Tratamiento</h4>
+                        <p class="treatment-text">{{ c.planTratamiento }}</p>
+                    </div>
+
+
+                    <!-- Evaluación Emocional (Nuevo Diseño Neutrosófico) -->
+                    <div class="details-section" *ngIf="getEvaluacion(c.id)">
+                        <h4>Evaluación Emocional</h4>
+                        <div class="neutrosophic-grid-sm">
+                            <!-- Ansiedad -->
+                            <div class="tripleta-card-sm"
+                                *ngIf="getEvaluacion(c.id)?.tripletasGlobales?.ansiedad?.t !== undefined">
+                                <div class="t-header-sm">
+                                    <span class="t-title-sm">Ansiedad</span>
+                                    <span class="t-percent-sm">{{
+                                        (getEvaluacion(c.id)!.probabilidadesAdherencia!.ansiedad) | number:'1.0-0'
+                                        }}%</span>
+                                </div>
+                                <div class="bars-container-sm">
+                                    <div class="bar-row-sm">
+                                        <span class="bar-lbl">T</span>
+                                        <div class="prog-track">
+                                            <div class="prog-fill t-fill"
+                                                [style.width.%]="getEvaluacion(c.id)!.tripletasGlobales!.ansiedad.t * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-row-sm">
+                                        <span class="bar-lbl">I</span>
+                                        <div class="prog-track">
+                                            <div class="prog-fill i-fill"
+                                                [style.width.%]="getEvaluacion(c.id)!.tripletasGlobales!.ansiedad.i * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-row-sm">
+                                        <span class="bar-lbl">F</span>
+                                        <div class="prog-track">
+                                            <div class="prog-fill f-fill"
+                                                [style.width.%]="getEvaluacion(c.id)!.tripletasGlobales!.ansiedad.f * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Depresión -->
+                            <div class="tripleta-card-sm"
+                                *ngIf="getEvaluacion(c.id)?.tripletasGlobales?.depresion?.t !== undefined">
+                                <div class="t-header-sm">
+                                    <span class="t-title-sm">Depresión</span>
+                                    <span class="t-percent-sm">{{
+                                        (getEvaluacion(c.id)!.probabilidadesAdherencia!.depresion) | number:'1.0-0'
+                                        }}%</span>
+                                </div>
+                                <div class="bars-container-sm">
+                                    <div class="bar-row-sm">
+                                        <span class="bar-lbl">T</span>
+                                        <div class="prog-track">
+                                            <div class="prog-fill t-fill"
+                                                [style.width.%]="getEvaluacion(c.id)!.tripletasGlobales!.depresion.t * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-row-sm">
+                                        <span class="bar-lbl">I</span>
+                                        <div class="prog-track">
+                                            <div class="prog-fill i-fill"
+                                                [style.width.%]="getEvaluacion(c.id)!.tripletasGlobales!.depresion.i * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-row-sm">
+                                        <span class="bar-lbl">F</span>
+                                        <div class="prog-track">
+                                            <div class="prog-fill f-fill"
+                                                [style.width.%]="getEvaluacion(c.id)!.tripletasGlobales!.depresion.f * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Estrés -->
+                            <div class="tripleta-card-sm"
+                                *ngIf="getEvaluacion(c.id)?.tripletasGlobales?.estres?.t !== undefined">
+                                <div class="t-header-sm">
+                                    <span class="t-title-sm">Estrés</span>
+                                    <span class="t-percent-sm">{{
+                                        (getEvaluacion(c.id)!.probabilidadesAdherencia!.estres) | number:'1.0-0'
+                                        }}%</span>
+                                </div>
+                                <div class="bars-container-sm">
+                                    <div class="bar-row-sm">
+                                        <span class="bar-lbl">T</span>
+                                        <div class="prog-track">
+                                            <div class="prog-fill t-fill"
+                                                [style.width.%]="getEvaluacion(c.id)!.tripletasGlobales!.estres.t * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-row-sm">
+                                        <span class="bar-lbl">I</span>
+                                        <div class="prog-track">
+                                            <div class="prog-fill i-fill"
+                                                [style.width.%]="getEvaluacion(c.id)!.tripletasGlobales!.estres.i * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-row-sm">
+                                        <span class="bar-lbl">F</span>
+                                        <div class="prog-track">
+                                            <div class="prog-fill f-fill"
+                                                [style.width.%]="getEvaluacion(c.id)!.tripletasGlobales!.estres.f * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>

@@ -1,0 +1,195 @@
+<div class="page-layout">
+    <app-sidebar [activeMenu]="'consultas'"></app-sidebar>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div class="header-left">
+                <h1>Detalle de Evaluación</h1>
+                <p class="header-subtitle">Resultados detallados de la evaluación psicológica</p>
+            </div>
+            <button class="btn-secondary" (click)="goBack()">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Volver
+            </button>
+        </header>
+
+        <div class="results-container animate-slideUp" *ngIf="!loading() && evaluacion()">
+            <!-- Resumen de Puntajes -->
+            <div class="card">
+                <h3>Resultados Generales</h3>
+                <div class="scores-grid">
+                    <div class="score-card">
+                        <span class="score-title">Ansiedad (GAD-7)</span>
+                        <span class="score-value">{{ evaluacion()?.puntajes?.gad7 }}/21</span>
+                        <span class="score-level" [ngClass]="getNivelClass(evaluacion()?.niveles?.ansiedad)">
+                            {{ evaluacion()?.niveles?.ansiedad }}
+                        </span>
+                    </div>
+                    <div class="score-card">
+                        <span class="score-title">Depresión (PHQ-9)</span>
+                        <span class="score-value">{{ evaluacion()?.puntajes?.phq9 }}/27</span>
+                        <span class="score-level" [ngClass]="getNivelClass(evaluacion()?.niveles?.depresion)">
+                            {{ evaluacion()?.niveles?.depresion }}
+                        </span>
+                    </div>
+                    <div class="score-card">
+                        <span class="score-title">Estrés (PSS-10)</span>
+                        <span class="score-value">{{ evaluacion()?.puntajes?.pss10 }}/40</span>
+                        <span class="score-level" [ngClass]="getNivelClass(evaluacion()?.niveles?.estres)">
+                            {{ evaluacion()?.niveles?.estres }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalles Neutrosóficos -->
+            <div class="card" *ngIf="resultados()">
+                <h3>Análisis Neutrosófico</h3>
+                <div class="neutrosophic-grid">
+                    <!-- Ansiedad -->
+                    <div class="tripleta-card">
+                        <div class="tripleta-header-main">
+                            <span class="t-title">Ansiedad</span>
+                            <span class="t-main-percent">{{ resultados()?.probabilidadesAdherencia?.ansiedad |
+                                number:'1.1-1' }}%</span>
+                        </div>
+                        <div class="bars-container">
+                            <div class="bar-row">
+                                <span class="bar-label">T</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill t-fill"
+                                        [style.width.%]="(resultados()?.tripletasGlobales?.ansiedad?.t || 0) * 100">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ (resultados()?.tripletasGlobales?.ansiedad?.t || 0) * 100 |
+                                    number:'1.1-1' }}%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-label">I</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill i-fill"
+                                        [style.width.%]="(resultados()?.tripletasGlobales?.ansiedad?.i || 0) * 100">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ (resultados()?.tripletasGlobales?.ansiedad?.i || 0) * 100 |
+                                    number:'1.1-1' }}%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-label">F</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill f-fill"
+                                        [style.width.%]="(resultados()?.tripletasGlobales?.ansiedad?.f || 0) * 100">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ (resultados()?.tripletasGlobales?.ansiedad?.f || 0) * 100 |
+                                    number:'1.1-1' }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Depresión -->
+                    <div class="tripleta-card">
+                        <div class="tripleta-header-main">
+                            <span class="t-title">Depresión</span>
+                            <span class="t-main-percent">{{ resultados()?.probabilidadesAdherencia?.depresion |
+                                number:'1.1-1' }}%</span>
+                        </div>
+                        <div class="bars-container">
+                            <div class="bar-row">
+                                <span class="bar-label">T</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill t-fill"
+                                        [style.width.%]="(resultados()?.tripletasGlobales?.depresion?.t || 0) * 100">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ (resultados()?.tripletasGlobales?.depresion?.t || 0) * 100 |
+                                    number:'1.1-1' }}%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-label">I</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill i-fill"
+                                        [style.width.%]="(resultados()?.tripletasGlobales?.depresion?.i || 0) * 100">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ (resultados()?.tripletasGlobales?.depresion?.i || 0) * 100 |
+                                    number:'1.1-1' }}%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-label">F</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill f-fill"
+                                        [style.width.%]="(resultados()?.tripletasGlobales?.depresion?.f || 0) * 100">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ (resultados()?.tripletasGlobales?.depresion?.f || 0) * 100 |
+                                    number:'1.1-1' }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estrés -->
+                    <div class="tripleta-card">
+                        <div class="tripleta-header-main">
+                            <span class="t-title">Estrés</span>
+                            <span class="t-main-percent">{{ resultados()?.probabilidadesAdherencia?.estres |
+                                number:'1.1-1' }}%</span>
+                        </div>
+                        <div class="bars-container">
+                            <div class="bar-row">
+                                <span class="bar-label">T</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill t-fill"
+                                        [style.width.%]="(resultados()?.tripletasGlobales?.estres?.t || 0) * 100">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ (resultados()?.tripletasGlobales?.estres?.t || 0) * 100 |
+                                    number:'1.1-1' }}%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-label">I</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill i-fill"
+                                        [style.width.%]="(resultados()?.tripletasGlobales?.estres?.i || 0) * 100">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ (resultados()?.tripletasGlobales?.estres?.i || 0) * 100 |
+                                    number:'1.1-1' }}%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-label">F</span>
+                                <div class="progress-track">
+                                    <div class="progress-fill f-fill"
+                                        [style.width.%]="(resultados()?.tripletasGlobales?.estres?.f || 0) * 100">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ (resultados()?.tripletasGlobales?.estres?.f || 0) * 100 |
+                                    number:'1.1-1' }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recomendaciones -->
+            <div class="card" *ngIf="resultados()?.recomendaciones?.length">
+                <h3>Recomendaciones</h3>
+                <ul class="recommendations-list">
+                    <li *ngFor="let rec of resultados()!.recomendaciones">
+                        <span>{{ rec }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div *ngIf="loading()" class="loading-state">
+            <p>Cargando detalles...</p>
+        </div>
+
+        <div *ngIf="!loading() && error()" class="error-state">
+            <p>{{ error() }}</p>
+        </div>
+    </main>
+</div>
